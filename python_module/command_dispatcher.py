@@ -1,27 +1,44 @@
 import serial
 import time
+import threading
 
 edu_ciaa_port = serial.Serial(port='/dev/ttyUSB1', baudrate=115200, timeout=0.5)
 
-if edu_ciaa_port.isOpen():
-	edu_ciaa_port.close()
 
-edu_ciaa_port.open()
+def clear_screen():
+    print(chr(27) + "[2J")
+    print(chr(27) + "[H")
 
-print("Serial connection with EDU-CIAA opened. \n")
+def read_edu_ciaa_port():
+    while True:
+        bytes_to_read = edu_ciaa_port.in_waiting
+        data_received = edu_ciaa_port.read(bytes_to_read).decode("utf-8");
+        
+        if len(data_received) > 0:
+            clear_screen()
+            print("[FROM EDU-CIAA] {}".format(data_received))
 
-while True:
-	try:
-		rx_string = ""
-		while edu_ciaa_port.in_waiting > 0:
-			rx_string = rx_string + edu_ciaa_port.read(1).decode("utf-8")	# read one byte at a time
+        time.sleep(0.1)
 
-		if rx_string != "":
-			print("[FROM EDU-CIAA] {}".format(rx_string))
 
-		time.sleep(0.2)
-	except KeyboardInterrupt:
-		print("User pressed ctrl+c to terminate the program.")
-		edu_ciaa_port.close()
+def main():
+    if edu_ciaa_port.isOpen():
+        edu_ciaa_port.close()
+    edu_ciaa_port.open()
+    print("Serial connection with EDU-CIAA opened. \n")
 
-edu_ciaa_port.close()
+    thread_read = threading.Thread(target=read_edu_ciaa_port, args=())
+    thread_read.start()
+
+    while True:
+        try:
+            data_to_send = input(">> ")
+            edu_ciaa_port.write(data_to_send.encode())
+
+        except KeyboardInterrupt:
+            print("User pressed ctrl+c to terminate the program.")
+            edu_ciaa_port.close()
+
+    edu_ciaa_port.close()
+
+main()
