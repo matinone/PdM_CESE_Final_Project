@@ -19,7 +19,12 @@ def read_edu_ciaa_port():
         
         if len(data_received) > 0:
             # clear_screen()
-            print("\n[FROM EDU-CIAA] {}".format(data_received))
+            if data_received.startswith("A_"):
+                device_header, message = data_received.split('_')
+                print("[FROM EDU-CIAA TO ARDUINO] {}".format(message))
+                arduino_port.write(message.encode())
+            else:
+                print("[FROM EDU-CIAA TO PC] {}".format(data_received))
 
         time.sleep(0.1)
 
@@ -32,7 +37,12 @@ def read_arduino_port():
         
         if len(data_received) > 0:
             # clear_screen()
-            print("\n[FROM ARDUINO] {}".format(data_received))
+            if data_received.startswith("E_"):
+                device_header, message = data_received.split('_')
+                print("[FROM ARDUINO TO EDU-CIAA] {}".format(message))
+                edu_ciaa_port.write(message.encode())
+            else:
+                print("[FROM ARDUINO TO PC] {}".format(data_received))
 
         time.sleep(0.1)
 
@@ -49,21 +59,37 @@ def main():
     arduino_port.open()
     print("Serial connection with ARDUINO opened. \n")
 
+    arduino_port.flush()
+    edu_ciaa_port.flush()
+
     # create and start thread to read the EDU-CIAA and ARDUINO serial ports
     thread_read_edu_ciaa = threading.Thread(target=read_edu_ciaa_port, args=())
     thread_read_arduino = threading.Thread(target=read_arduino_port, args=())
+
+    # stop the threads once the main program finishes
+    thread_read_edu_ciaa.setDaemon(True)
+    thread_read_arduino.setDaemon(True)
+
     thread_read_edu_ciaa.start()
     thread_read_arduino.start()
 
     while True:
         try:
-            data_to_send = input(">> ")
-            device_header, message = data_to_send.split('_')
+            data_to_send = input("")
+            if data_to_send == "exit":
+                print("Closing program.")
+                break
+            try:
+                device_header, message = data_to_send.split('_')
+            except:
+                print("Invalid command format. Must be A_[number] or E_[number].")
+                continue
+            
             if device_header == 'A':
-                print("[TO ARDUINO] {}".format(message))
+                print("[FROM PC TO ARDUINO] {}".format(message))
                 arduino_port.write(message.encode())
             elif device_header == 'E':
-                print("[TO EDU_CIAA] {}".format(message))
+                print("[FROM PC TO EDU_CIAA] {}".format(message))
                 edu_ciaa_port.write(message.encode())
 
         except KeyboardInterrupt:
@@ -75,4 +101,5 @@ def main():
     arduino_port.close()
 
 
-main()
+if __name__ == "__main__":
+    main()
