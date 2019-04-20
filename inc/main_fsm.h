@@ -25,6 +25,13 @@ typedef enum {
 	CHECK_RSP
 }	main_fsm_state_t;
 
+/* ===== Public structs and enums ===== */
+typedef enum {
+	TOGGLE_LED = '1',
+	ECHO_ARDUINO = '2',
+	ARDUINO_DONE = 'A'
+}	pc_command_t;
+
 
 /* ===== Prototypes of public functions ===== */
 void main_fsm_init();

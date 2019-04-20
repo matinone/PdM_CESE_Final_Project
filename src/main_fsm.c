@@ -16,12 +16,12 @@
 /* ===== Macros of private constants ===== */
 #define PROCESS_DELAY 10
 #define BAUD_RATE 115200
+// #define ASCII_OFFSET 48
 
 
 /* ===== Declaration of private variables ===== */
 static main_fsm_state_t main_fsm_state;
 static delay_t process_delay;
-static delay_t arduino_rsp_timeout;
 static arduino_cmd_t current_cmd; 
 
 
@@ -63,13 +63,13 @@ void main_fsm_execute ()    {
 
             case PROCESS_CMD:
                 switch (received_byte)  {
-                    case '1':
+                    case TOGGLE_LED:
                         uartWriteString(UART_USB, "Command 1 received - toggle EDU-CIAA LEDB.\r\n");
                         gpioToggle(LEDB);
                         main_fsm_state = IDLE;
                         break;
 
-                    case '2':
+                    case ECHO_ARDUINO:
                         uartWriteString(UART_USB, "Command 2 received - echo to Arduino.\r\n");
                         //send_command_to_arduino(received_byte);
                         uartWriteString(UART_USB, "A_1\r\n");
@@ -79,6 +79,22 @@ void main_fsm_execute ()    {
                         start_arduino_timeout(&current_cmd);
 
                         main_fsm_state = WAIT_RSP;
+                        break;
+
+                    case ARDUINO_DONE:
+                        reset_arduino_cmd(&current_cmd);
+                        current_cmd.rsp_header = ARDUINO_DONE;
+                        rsp_status = check_arduino_rsp(&current_cmd);
+
+                        if (rsp_status == RSP_OK) {
+                            uartWriteString(UART_USB, "Arduino finished its process. Updating Arduino FSM.\r\n");
+                            // change_arduino_state();
+                        }
+                        else {
+                            uartWriteString(UART_USB, "ERROR: Arduino tried to update its state, but response was NOT OK.\r\n");
+                        }
+                        
+                        main_fsm_state = IDLE;
                         break;
 
                     default:
@@ -104,7 +120,7 @@ void main_fsm_execute ()    {
                 }
 
                 if (delayRead(&(current_cmd.delay)))    {
-                    uartWriteString(UART_USB, "ERROR: Arduino response timeout.\r\n");
+                    uartWriteString(UART_USB, "ERROR: Arduino response timeout, could not process command.\r\n");
                     main_fsm_state = IDLE;
                 }
                 break;
