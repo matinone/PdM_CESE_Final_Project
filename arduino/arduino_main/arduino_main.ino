@@ -16,7 +16,7 @@ void loop() {
         Serial.print("E_1");
         break;
       case '2':
-        Serial.print("Got 2");
+        Serial.print("E_2");
       default:
         if (rx_byte != '\n' && rx_byte != '\r') {
           Serial.print("Got Unknown");

@@ -45,6 +45,7 @@ def read_arduino_port():
                 if len(line) > 0:
                     if line.startswith("E_"):
                         device_header, message = line.split('_')
+                        message = 'A' + message
                         print("[FROM ARDUINO TO EDU-CIAA] {}".format(message))
                         edu_ciaa_port.write(message.encode())
                     else:

@@ -9,12 +9,12 @@
 
 /* ===== Dependencies ===== */
 #include "main_fsm.h"
+#include "arduino_command.h"
 #include "uart_print.h"
 
 
 /* ===== Macros of private constants ===== */
 #define PROCESS_DELAY 10
-#define ARDUINO_TIMEOUT 2000
 #define BAUD_RATE 115200
 
 
@@ -22,6 +22,7 @@
 static main_fsm_state_t main_fsm_state;
 static delay_t process_delay;
 static delay_t arduino_rsp_timeout;
+static arduino_cmd_t current_cmd; 
 
 
 /* ===== Prototypes of private functions ===== */
@@ -31,9 +32,11 @@ static delay_t arduino_rsp_timeout;
 
 void main_fsm_init ()   {
     uartConfig(UART_USB, BAUD_RATE);                    // config uart
+    
     delayConfig(&process_delay, PROCESS_DELAY);         // config delay for the main FSM
     main_fsm_state = INITIAL;                           // set main fsm initial state
-    delayConfig(&arduino_rsp_timeout, ARDUINO_TIMEOUT); // config delay for arduino response timeout
+    
+    reset_arduino_cmd(&current_cmd);
     gpioWrite(LEDB, OFF);
 }
 
@@ -43,27 +46,25 @@ void main_fsm_execute ()    {
     
     if (delayRead(&process_delay)) {
 
-        uint8_t received_rsp;
+        uint8_t rsp_status;
 
         switch(main_fsm_state)   {
 
             case INITIAL:
                 print_welcome_msg();
                 main_fsm_state = IDLE;
-                uartWriteString(UART_USB, "Entering IDLE state.\r\n");
                 break;
 
             case IDLE:
                 if (uartReadByte(UART_USB, &received_byte)) {
                     main_fsm_state = PROCESS_CMD;
-                    uartWriteString(UART_USB, "Entering PROCESS_CMD state.\r\n");
                 }
                 break;
 
             case PROCESS_CMD:
                 switch (received_byte)  {
                     case '1':
-                        uartWriteString(UART_USB, "Command 1 received - toggle LEDB.\r\n");
+                        uartWriteString(UART_USB, "Command 1 received - toggle EDU-CIAA LEDB.\r\n");
                         gpioToggle(LEDB);
                         main_fsm_state = IDLE;
                         break;
@@ -72,10 +73,10 @@ void main_fsm_execute ()    {
                         uartWriteString(UART_USB, "Command 2 received - echo to Arduino.\r\n");
                         //send_command_to_arduino(received_byte);
                         uartWriteString(UART_USB, "A_1\r\n");
-                        
-                        // config delay for the rsp timeout
-                        delayConfig(&arduino_rsp_timeout, ARDUINO_TIMEOUT);
-                        delayRead(&arduino_rsp_timeout);    // the delay starts after being read once
+
+                        reset_arduino_cmd(&current_cmd);
+                        current_cmd.cmd = received_byte;
+                        start_arduino_timeout(&current_cmd);
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -87,15 +88,22 @@ void main_fsm_execute ()    {
                 break;
 
             case WAIT_RSP:
-                 
-                if (uartReadByte(UART_USB, &received_rsp)) {
-                    // check_rsp(received_rsp, received_byte);
-                    // update_arduino_fsm(received_rsp, received_byte);
-                    uartWriteString(UART_USB, "Arduino response OK.\r\n");
+            
+                if (uartReadByte(UART_USB, &(current_cmd.rsp_header))) {
+                    rsp_status = check_arduino_rsp(&current_cmd);
+
+                    if (rsp_status == RSP_OK)   {
+                        // update_arduino_fsm(&current_cmd);
+                        uartWriteString(UART_USB, "Arduino response OK.\r\n");
+                    }
+                    else {
+                        uartWriteString(UART_USB, "ERROR: Arduino response NOT OK, could not process command.\r\n");
+                    }
+
                     main_fsm_state = IDLE;
                 }
 
-                if (delayRead(&arduino_rsp_timeout))    {
+                if (delayRead(&(current_cmd.delay)))    {
                     uartWriteString(UART_USB, "ERROR: Arduino response timeout.\r\n");
                     main_fsm_state = IDLE;
                 }
