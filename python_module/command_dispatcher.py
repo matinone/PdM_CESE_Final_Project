@@ -18,13 +18,16 @@ def read_edu_ciaa_port():
         data_received = edu_ciaa_port.read(bytes_to_read).decode("utf-8");
         
         if len(data_received) > 0:
-            # clear_screen()
-            if data_received.startswith("A_"):
-                device_header, message = data_received.split('_')
-                print("[FROM EDU-CIAA TO ARDUINO] {}".format(message))
-                arduino_port.write(message.encode())
-            else:
-                print("[FROM EDU-CIAA TO PC] {}".format(data_received))
+            data_received_lines = data_received.split('\r\n')
+
+            for line in data_received_lines:
+                if len(line) > 0:
+                    if line.startswith("A_"):
+                        device_header, message = line.split('_')
+                        print("[FROM EDU-CIAA TO ARDUINO] {}".format(message))
+                        arduino_port.write(message.encode())
+                    else:
+                        print("[FROM EDU-CIAA TO PC] {}".format(line))
 
         time.sleep(0.1)
 
@@ -36,13 +39,16 @@ def read_arduino_port():
         data_received = arduino_port.read(bytes_to_read).decode("utf-8");
         
         if len(data_received) > 0:
-            # clear_screen()
-            if data_received.startswith("E_"):
-                device_header, message = data_received.split('_')
-                print("[FROM ARDUINO TO EDU-CIAA] {}".format(message))
-                edu_ciaa_port.write(message.encode())
-            else:
-                print("[FROM ARDUINO TO PC] {}".format(data_received))
+            data_received_lines = data_received.split('\r\n')
+
+            for line in data_received_lines:
+                if len(line) > 0:
+                    if line.startswith("E_"):
+                        device_header, message = line.split('_')
+                        print("[FROM ARDUINO TO EDU-CIAA] {}".format(message))
+                        edu_ciaa_port.write(message.encode())
+                    else:
+                        print("[FROM ARDUINO TO PC] {}".format(line))
 
         time.sleep(0.1)
 
