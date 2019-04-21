@@ -71,6 +71,7 @@ void main_fsm_execute ()    {
         switch(main_fsm_state)   {
 
             case INITIAL:
+                clear_screen();
                 print_welcome_msg();
                 main_fsm_state = IDLE;
                 break;
