@@ -33,10 +33,10 @@ void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte);
 /* ===== Implementations of public functions ===== */
 
 void main_fsm_init ()   {
-    uartConfig(UART_USB, BAUD_RATE);                    // config uart
+    uartConfig(UART_USB, BAUD_RATE);            // config uart
     
-    delayConfig(&process_delay, PROCESS_DELAY);         // config delay for the main FSM
-    main_fsm_state = INITIAL;                           // set main fsm initial state
+    delayConfig(&process_delay, PROCESS_DELAY); // config delay for the main FSM
+    main_fsm_state = INITIAL;                   // set main fsm initial state
     
     reset_arduino_cmd(&current_cmd);
     gpioWrite(LEDB, OFF);
@@ -69,15 +69,15 @@ void main_fsm_execute ()    {
             case PROCESS_CMD:
                 switch (received_byte)  {
                     case TOGGLE_LED:
-                        uartWriteString(UART_USB, "Command 1 received - toggle EDU-CIAA LEDB.\r\n");
+                        uartWriteString(UART_USB, "Command 0 received - toggle EDU-CIAA LEDB.\r\n");
                         gpioToggle(LEDB);
                         main_fsm_state = IDLE;
                         break;
 
                     case ECHO_ARDUINO:
-                        uartWriteString(UART_USB, "Command 2 received - echo to Arduino.\r\n");
-                        //send_command_to_arduino(received_byte);
-                        uartWriteString(UART_USB, "A_1\r\n");
+                        uartWriteString(UART_USB, "Command 1 received - echo to Arduino.\r\n");
+                        send_cmd_to_arduino(received_byte);
+                        // uartWriteString(UART_USB, "A_1\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -85,9 +85,9 @@ void main_fsm_execute ()    {
                         break;
 
                     case CONFIG_MODE_1:
-                        uartWriteString(UART_USB, "Command 3 received - configure Arduino in Mode 1.\r\n");
-                        //send_command_to_arduino(received_byte);
-                        uartWriteString(UART_USB, "A_2\r\n");
+                        uartWriteString(UART_USB, "Command 2 received - configure Arduino in Mode 1.\r\n");
+                        send_cmd_to_arduino(received_byte);
+                        // uartWriteString(UART_USB, "A_2\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -95,9 +95,9 @@ void main_fsm_execute ()    {
                         break;
 
                     case CONFIG_MODE_2:
-                        uartWriteString(UART_USB, "Command 4 received - configure Arduino in Mode 2.\r\n");
-                        //send_command_to_arduino(received_byte);
-                        uartWriteString(UART_USB, "A_3\r\n");
+                        uartWriteString(UART_USB, "Command 3 received - configure Arduino in Mode 2.\r\n");
+                        send_cmd_to_arduino(received_byte);
+                        // uartWriteString(UART_USB, "A_3\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);;
 
@@ -105,9 +105,9 @@ void main_fsm_execute ()    {
                         break;
 
                     case START_PROCESS:
-                        uartWriteString(UART_USB, "Command 5 received - start process in Arduino.\r\n");
-                        //send_command_to_arduino(received_byte);
-                        uartWriteString(UART_USB, "A_4\r\n");
+                        uartWriteString(UART_USB, "Command 4 received - start process in Arduino.\r\n");
+                        send_cmd_to_arduino(received_byte);
+                        // uartWriteString(UART_USB, "A_4\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -115,7 +115,7 @@ void main_fsm_execute ()    {
                         break;
 
                     case GET_ARDUINO_STATE:
-                        uartWriteString(UART_USB, "Command 6 received - get Arduino FSM state.\r\n");
+                        uartWriteString(UART_USB, "Command 5 received - get Arduino FSM state.\r\n");
                         current_arduino_state = get_arduino_fsm_state();
                         uartWriteString(UART_USB, "Arduino FSM State: ");
                         uartWriteString(UART_USB, arduino_fsm_translate(current_arduino_state));
@@ -125,7 +125,7 @@ void main_fsm_execute ()    {
                         break;
 
                     case READ_ADC:
-                        uartWriteString(UART_USB, "Command 7 received - read ADC value.\r\n");
+                        uartWriteString(UART_USB, "Command 6 received - read ADC value.\r\n");
                         print_adc_value(adcRead(ADC_CHANNEL));
 
                         main_fsm_state = IDLE;

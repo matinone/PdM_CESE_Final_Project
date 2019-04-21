@@ -34,6 +34,7 @@ typedef struct {
 void reset_arduino_cmd(arduino_cmd_t * cmd);
 void start_arduino_timeout(arduino_cmd_t * cmd);
 uint8_t check_arduino_rsp(arduino_cmd_t * cmd);
+void send_cmd_to_arduino(uint8_t id);
 
 
 /* ===== Avoid multiple inclusion ===== */

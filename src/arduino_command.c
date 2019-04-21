@@ -51,6 +51,13 @@ uint8_t check_arduino_rsp(arduino_cmd_t * cmd)  {
     return RSP_OK;
 }
 
+void send_cmd_to_arduino(uint8_t id)    {
+    char cmd_string[5];
+    sprintf(cmd_string, "A_%c\r\n", id);
+    
+    uartWriteString(UART_USB, cmd_string);
+}
+
 
 /* ===== Implementations of private functions ===== */
 

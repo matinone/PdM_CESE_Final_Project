@@ -25,13 +25,13 @@ typedef enum {
 }	main_fsm_state_t;
 
 typedef enum {
-	TOGGLE_LED 			= '1',
-	ECHO_ARDUINO 		= '2',
-	CONFIG_MODE_1 		= '3',
-	CONFIG_MODE_2 		= '4',
-	START_PROCESS 		= '5',
-	GET_ARDUINO_STATE 	= '6',
-	READ_ADC			= '7',
+	TOGGLE_LED 			= '0',
+	ECHO_ARDUINO 		= '1',
+	CONFIG_MODE_1 		= '2',
+	CONFIG_MODE_2 		= '3',
+	START_PROCESS 		= '4',
+	GET_ARDUINO_STATE 	= '5',
+	READ_ADC			= '6',
 	ARDUINO_DONE 		= 'A',
 }	pc_command_t;
 
