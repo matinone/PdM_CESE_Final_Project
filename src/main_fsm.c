@@ -27,7 +27,6 @@ static arduino_cmd_t current_cmd;
 
 
 /* ===== Prototypes of private functions ===== */
-void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte);
 
 
 /* ===== Implementations of public functions ===== */
@@ -62,7 +61,17 @@ void main_fsm_execute ()    {
 
             case IDLE:
                 if (uartReadByte(UART_USB, &received_byte)) {
-                    main_fsm_state = PROCESS_CMD;
+                    if (received_byte == 'E')   {
+                        if (uartReadByte(UART_USB, &received_byte)) {
+                            main_fsm_state = PROCESS_CMD;   // only process command if the format is 'E + number'
+                        }
+                        else    {
+                            uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
+                        }
+                    } 
+                    else    {
+                        uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
+                    }
                 }
                 break;
 
@@ -77,7 +86,6 @@ void main_fsm_execute ()    {
                     case ECHO_ARDUINO:
                         uartWriteString(UART_USB, "Command 1 received - echo to Arduino.\r\n");
                         send_cmd_to_arduino(received_byte);
-                        // uartWriteString(UART_USB, "A_1\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -87,7 +95,6 @@ void main_fsm_execute ()    {
                     case CONFIG_MODE_1:
                         uartWriteString(UART_USB, "Command 2 received - configure Arduino in Mode 1.\r\n");
                         send_cmd_to_arduino(received_byte);
-                        // uartWriteString(UART_USB, "A_2\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -97,7 +104,6 @@ void main_fsm_execute ()    {
                     case CONFIG_MODE_2:
                         uartWriteString(UART_USB, "Command 3 received - configure Arduino in Mode 2.\r\n");
                         send_cmd_to_arduino(received_byte);
-                        // uartWriteString(UART_USB, "A_3\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);;
 
@@ -107,7 +113,6 @@ void main_fsm_execute ()    {
                     case START_PROCESS:
                         uartWriteString(UART_USB, "Command 4 received - start process in Arduino.\r\n");
                         send_cmd_to_arduino(received_byte);
-                        // uartWriteString(UART_USB, "A_4\r\n");
 
                         setup_arduino_command(&current_cmd, received_byte);
 
@@ -188,8 +193,4 @@ void main_fsm_execute ()    {
 
 
 /* ===== Implementations of private functions ===== */
-void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte)    {
-    reset_arduino_cmd(cmd);
-    cmd->cmd = rx_byte;
-    start_arduino_timeout(cmd);
-}
+

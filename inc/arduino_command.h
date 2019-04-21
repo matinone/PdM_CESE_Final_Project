@@ -103,5 +103,20 @@ uint8_t check_arduino_rsp(arduino_cmd_t * cmd);
 void send_cmd_to_arduino(uint8_t id);
 
 
+/*------------------------------------------------------------------
+|  Function: setup_arduino_command
+| ------------------------------------------------------------------
+|  Description: set the values of arduino_cmd_t according to the
+|				received command, and starts the timeout delay.
+|
+|  Parameters:
+|		cmd 	- Arduino command to setup
+|		rx_byte	- received command
+|
+|  Returns:  void
+*-------------------------------------------------------------------*/
+void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte);
+
+
 /* ===== Avoid multiple inclusion ===== */
 #endif // __ARDUINO_COMMAND_H__

@@ -96,6 +96,7 @@ def main():
                 print("[FROM PC TO ARDUINO] {}".format(message))
                 arduino_port.write(message.encode())
             elif device_header == 'E':
+                message = device_header + message
                 print("[FROM PC TO EDU_CIAA] {}".format(message))
                 edu_ciaa_port.write(message.encode())
 

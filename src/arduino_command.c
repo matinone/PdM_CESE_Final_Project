@@ -58,6 +58,11 @@ void send_cmd_to_arduino(uint8_t id)    {
     uartWriteString(UART_USB, cmd_string);
 }
 
+void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte)    {
+    reset_arduino_cmd(cmd);
+    cmd->cmd = rx_byte;
+    start_arduino_timeout(cmd);
+}
 
 /* ===== Implementations of private functions ===== */
 
