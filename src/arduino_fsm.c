@@ -57,5 +57,21 @@ arduino_fsm_state_t get_arduino_fsm_state() {
 }
 
 
+char * arduino_fsm_translate(arduino_fsm_state_t state) {
+    switch(state)   {
+        case ARDUINO_IDLE:
+            return "IDLE";
+        case ARDUINO_MODE_1:
+            return "MODE 1";
+        case ARDUINO_MODE_2:
+            return "MODE 2";
+        case ARDUINO_WORKING:
+            return "WORKING";
+        default:
+            return "INVALID";
+    }
+}
+
+
 /* ===== Implementations of private functions ===== */
 

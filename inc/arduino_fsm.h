@@ -31,6 +31,7 @@ void arduino_fsm_init();
 void update_arduino_fsm(arduino_cmd_t * cmd);
 void change_arduino_state();
 arduino_fsm_state_t get_arduino_fsm_state();
+char * arduino_fsm_translate(arduino_fsm_state_t state);
 
 
 /* ===== Avoid multiple inclusion ===== */

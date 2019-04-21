@@ -48,6 +48,7 @@ void main_fsm_execute ()    {
     if (delayRead(&process_delay)) {
 
         uint8_t rsp_status;
+        arduino_fsm_state_t current_arduino_state;
 
         switch(main_fsm_state)   {
 
@@ -108,6 +109,16 @@ void main_fsm_execute ()    {
                         setup_arduino_command(&current_cmd, received_byte);
 
                         main_fsm_state = WAIT_RSP;
+                        break;
+
+                    case GET_ARDUINO_STATE:
+                        uartWriteString(UART_USB, "Command 6 received - get Arduino FSM state.\r\n");
+                        current_arduino_state = get_arduino_fsm_state();
+                        uartWriteString(UART_USB, "Arduino FSM State: ");
+                        uartWriteString(UART_USB, arduino_fsm_translate(current_arduino_state));
+                        uartWriteString(UART_USB, ".\r\n");
+
+                        main_fsm_state = IDLE;
                         break;
 
                     case ARDUINO_DONE:
