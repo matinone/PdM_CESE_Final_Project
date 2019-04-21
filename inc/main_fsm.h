@@ -64,6 +64,7 @@ typedef enum {
 	START_PROCESS 		= '4',
 	GET_ARDUINO_STATE 	= '5',
 	READ_ADC			= '6',
+	GET_CMD_STATS		= '7',
 	ARDUINO_DONE 		= 'A',
 }	pc_command_t;
 
@@ -91,6 +92,7 @@ typedef struct {
 	uint16_t start_process;
 	uint16_t get_arduino_state;
 	uint16_t read_adc;
+	uint16_t get_cmd_stats;
 	uint16_t invalid_cmd;
 }	pc_command_stats_t;
 

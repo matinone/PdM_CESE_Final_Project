@@ -14,6 +14,7 @@
 
 /* ===== Dependencies ===== */
 #include "sapi.h"
+#include "main_fsm.h"
 
 
 /* ===== Prototypes of public functions ===== */
@@ -33,7 +34,7 @@ void clear_screen();
 
 
 /*------------------------------------------------------------------
-|  Function: clear_screen
+|  Function: print_welcome_msg
 | ------------------------------------------------------------------
 |  Description: sends a welcome message through the UART. 
 |
@@ -46,7 +47,7 @@ void print_welcome_msg();
 
 
 /*------------------------------------------------------------------
-|  Function: clear_screen
+|  Function: print_help
 | ------------------------------------------------------------------
 |  Description: prints a help message, showing the possible commands
 				and a short description. 
@@ -60,7 +61,7 @@ void print_help();
 
 
 /*------------------------------------------------------------------
-|  Function: clear_screen
+|  Function: print_adc_value
 | ------------------------------------------------------------------
 |  Description: prints the value read from the ADC.
 |
@@ -71,6 +72,20 @@ void print_help();
 *-------------------------------------------------------------------*/
 void print_adc_value(uint16_t adc_value);
 
+
+/*------------------------------------------------------------------
+|  Function: print_cmd_stats
+| ------------------------------------------------------------------
+|  Description: prints the statistics of the commands sent by the
+|				user.
+|
+|  Parameters:
+|		pc_command_stats - pc_command_stats_t struct holding the 
+|						   statistics to print.
+|
+|  Returns:  void
+*-------------------------------------------------------------------*/
+void print_cmd_stats(pc_command_stats_t * pc_command_stats);
 
 /* ===== Avoid multiple inclusion ===== */
 #endif // __UART_PRINT_H__

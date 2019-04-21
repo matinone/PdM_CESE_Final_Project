@@ -165,6 +165,14 @@ void main_fsm_execute ()    {
                         main_fsm_state = IDLE;
                         break;
 
+                    case GET_CMD_STATS:
+                        uartWriteString(UART_USB, "Command 7 received - get command statistics.\r\n");
+                        pc_command_stats.get_cmd_stats += 1;
+                        print_cmd_stats(&pc_command_stats);
+
+                        main_fsm_state = IDLE;
+                        break;
+
                     case ARDUINO_DONE:
                         reset_arduino_cmd(&current_cmd);
                         current_cmd.rsp_header = ARDUINO_DONE;
@@ -232,6 +240,7 @@ void pc_command_stats_init(pc_command_stats_t * stats)  {
     stats->start_process        = 0;
     stats->get_arduino_state    = 0;
     stats->read_adc             = 0;
+    stats->get_cmd_stats        = 0;
     stats->invalid_cmd          = 0;
 }
 
