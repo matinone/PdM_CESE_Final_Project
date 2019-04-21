@@ -24,9 +24,23 @@
 static main_fsm_state_t main_fsm_state;
 static delay_t process_delay;
 static arduino_cmd_t current_cmd; 
+static pc_command_stats_t pc_command_stats;
 
 
 /* ===== Prototypes of private functions ===== */
+
+/*------------------------------------------------------------------
+|  Function: pc_command_stats_init
+| ------------------------------------------------------------------
+|  Description: sets all members of pc_command_stats_t struct to
+|               zero.
+|
+|  Parameters:
+|       stats - pc_command_stats_t struct to clear
+|
+|  Returns:  void
+*-------------------------------------------------------------------*/
+static void pc_command_stats_init(pc_command_stats_t * stats);
 
 
 /* ===== Implementations of public functions ===== */
@@ -37,6 +51,8 @@ void main_fsm_init ()   {
     delayConfig(&process_delay, PROCESS_DELAY); // config delay for the main FSM
     main_fsm_state = INITIAL;                   // set main fsm initial state
     
+    pc_command_stats_init(&pc_command_stats);
+
     reset_arduino_cmd(&current_cmd);
     gpioWrite(LEDB, OFF);
 
@@ -84,6 +100,8 @@ void main_fsm_execute ()    {
                     case TOGGLE_LED:
                         uartWriteString(UART_USB, "Command 0 received - toggle EDU-CIAA LEDB.\r\n");
                         gpioToggle(LEDB);
+                        pc_command_stats.toggle_led += 1;
+
                         main_fsm_state = IDLE;
                         break;
 
@@ -92,6 +110,7 @@ void main_fsm_execute ()    {
                         send_cmd_to_arduino(received_byte);
 
                         setup_arduino_command(&current_cmd, received_byte);
+                        pc_command_stats.echo_arduino += 1;
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -101,6 +120,7 @@ void main_fsm_execute ()    {
                         send_cmd_to_arduino(received_byte);
 
                         setup_arduino_command(&current_cmd, received_byte);
+                        pc_command_stats.config_mode_1 += 1;
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -109,7 +129,8 @@ void main_fsm_execute ()    {
                         uartWriteString(UART_USB, "Command 3 received - configure Arduino in Mode 2.\r\n");
                         send_cmd_to_arduino(received_byte);
 
-                        setup_arduino_command(&current_cmd, received_byte);;
+                        setup_arduino_command(&current_cmd, received_byte);
+                        pc_command_stats.config_mode_2 += 1;
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -119,6 +140,7 @@ void main_fsm_execute ()    {
                         send_cmd_to_arduino(received_byte);
 
                         setup_arduino_command(&current_cmd, received_byte);
+                        pc_command_stats.start_process += 1;
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -130,12 +152,15 @@ void main_fsm_execute ()    {
                         uartWriteString(UART_USB, arduino_fsm_translate(current_arduino_state));
                         uartWriteString(UART_USB, ".\r\n");
 
+                        pc_command_stats.get_arduino_state += 1;
+
                         main_fsm_state = IDLE;
                         break;
 
                     case READ_ADC:
                         uartWriteString(UART_USB, "Command 6 received - read ADC value.\r\n");
                         print_adc_value(adcRead(ADC_CHANNEL));
+                        pc_command_stats.read_adc += 1;
 
                         main_fsm_state = IDLE;
                         break;
@@ -164,6 +189,8 @@ void main_fsm_execute ()    {
                     default:
                         uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
                         print_help();
+                        pc_command_stats.invalid_cmd += 1;
+
                         main_fsm_state = IDLE;
                 }
                 break;
@@ -195,6 +222,18 @@ void main_fsm_execute ()    {
         }   // switch(fsm_uart_state)
     }   // if (delayRead(&uart_output_delay))
 }   // void main_fsm_execute
+
+
+void pc_command_stats_init(pc_command_stats_t * stats)  {
+    stats->toggle_led           = 0;
+    stats->echo_arduino         = 0;
+    stats->config_mode_1        = 0;
+    stats->config_mode_2        = 0;
+    stats->start_process        = 0;
+    stats->get_arduino_state    = 0;
+    stats->read_adc             = 0;
+    stats->invalid_cmd          = 0;
+}
 
 
 /* ===== Implementations of private functions ===== */

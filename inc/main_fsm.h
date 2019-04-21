@@ -68,6 +68,34 @@ typedef enum {
 }	pc_command_t;
 
 
+/*------------------------------------------------------------------
+|  Struct: pc_command_stats_t
+| ------------------------------------------------------------------
+|  Description: holds the number of times each command is sent by
+|				the user.
+|
+|  Members:
+|		toggle_led 			- number of TOGGLE_LED received
+|		echo_arduino 		- number of ECHO_ARDUINO received
+|		config_mode_1 		- number of CONFIG_MODE_1 received
+|		config_mode_2 		- number of CONFIG_MODE_2 received
+|		start_process 		- number of START_PROCESS received
+|		get_arduino_state 	- number of GET_ARDUINO_STATE received
+|		read_adc 			- number of READ_ADC received
+*-------------------------------------------------------------------*/
+typedef struct {
+	uint16_t toggle_led;
+	uint16_t echo_arduino;
+	uint16_t config_mode_1;
+	uint16_t config_mode_2;
+	uint16_t start_process;
+	uint16_t get_arduino_state;
+	uint16_t read_adc;
+	uint16_t invalid_cmd;
+}	pc_command_stats_t;
+
+
+
 /* ===== Prototypes of public functions ===== */
 
 /*------------------------------------------------------------------
@@ -77,6 +105,7 @@ typedef enum {
 |				performs the following actions:
 |				- Configure UART.
 |				- Reset current command.
+|				- Clear PC command statistics.
 |				- Clear LEDB.
 |				- Enable ADC.
 |
