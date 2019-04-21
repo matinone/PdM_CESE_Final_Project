@@ -25,6 +25,7 @@ static main_fsm_state_t main_fsm_state;
 static delay_t process_delay;
 static arduino_cmd_t current_cmd; 
 static pc_command_stats_t pc_command_stats;
+static uint8_t received_byte_buffer;
 
 
 /* ===== Prototypes of private functions ===== */
@@ -50,6 +51,7 @@ void main_fsm_init ()   {
     
     delayConfig(&process_delay, PROCESS_DELAY); // config delay for the main FSM
     main_fsm_state = INITIAL;                   // set main fsm initial state
+    received_byte_buffer = 0;
     
     pc_command_stats_init(&pc_command_stats);
 
@@ -94,6 +96,12 @@ void main_fsm_execute ()    {
                         print_help();
                     }
                 }
+                else if (received_byte_buffer != 0) {
+                    received_byte = received_byte_buffer;
+                    main_fsm_state = PROCESS_CMD;
+                }
+                received_byte_buffer = 0;
+                
                 break;
 
             case PROCESS_CMD:
@@ -212,12 +220,21 @@ void main_fsm_execute ()    {
                     if (rsp_status == RSP_OK)   {
                         uartWriteString(UART_USB, "Arduino response OK.\r\n");
                         update_arduino_fsm(&current_cmd);
+                        main_fsm_state = IDLE;
+                    }
+                    else if (current_cmd.rsp_header == 'E') {
+                        // the second condition will not be evaluated if the first one is false
+                        if (received_byte_buffer == 0 && uartReadByte(UART_USB, &received_byte_buffer))  {
+                            uartWriteString(UART_USB, "User command received, processing it later.\r\n");
+                        }
+                        else    {
+                            uartWriteString(UART_USB, "ERROR: user command received and ignored (cannot be processed at this point).\r\n");
+                        }
                     }
                     else {
                         uartWriteString(UART_USB, "ERROR: Arduino response NOT OK, could not process command.\r\n");
+                        main_fsm_state = IDLE;
                     }
-
-                    main_fsm_state = IDLE;
                 }
 
                 if (delayRead(&(current_cmd.delay)))    {
