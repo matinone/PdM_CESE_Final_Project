@@ -31,6 +31,7 @@ typedef enum {
 	CONFIG_MODE_2 		= '4',
 	START_PROCESS 		= '5',
 	GET_ARDUINO_STATE 	= '6',
+	READ_ADC			= '7',
 	ARDUINO_DONE 		= 'A',
 }	pc_command_t;
 

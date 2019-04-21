@@ -17,6 +17,7 @@
 /* ===== Macros of private constants ===== */
 #define PROCESS_DELAY 10
 #define BAUD_RATE 115200
+#define ADC_CHANNEL CH1
 
 
 /* ===== Declaration of private variables ===== */
@@ -39,6 +40,8 @@ void main_fsm_init ()   {
     
     reset_arduino_cmd(&current_cmd);
     gpioWrite(LEDB, OFF);
+
+    adcConfig(ADC_ENABLE);
 }
 
 // FSM Execute Function
@@ -117,6 +120,13 @@ void main_fsm_execute ()    {
                         uartWriteString(UART_USB, "Arduino FSM State: ");
                         uartWriteString(UART_USB, arduino_fsm_translate(current_arduino_state));
                         uartWriteString(UART_USB, ".\r\n");
+
+                        main_fsm_state = IDLE;
+                        break;
+
+                    case READ_ADC:
+                        uartWriteString(UART_USB, "Command 7 received - read ADC value.\r\n");
+                        print_adc_value(adcRead(ADC_CHANNEL));
 
                         main_fsm_state = IDLE;
                         break;
