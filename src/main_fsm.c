@@ -127,8 +127,13 @@ void main_fsm_execute ()    {
                         rsp_status = check_arduino_rsp(&current_cmd);
 
                         if (rsp_status == RSP_OK) {
-                            uartWriteString(UART_USB, "Arduino finished its process. Updating Arduino FSM.\r\n");
-                            change_arduino_state();
+                            if (get_arduino_fsm_state() != ARDUINO_WORKING) {
+                                uartWriteString(UART_USB, "ERROR: there is no process to finish in the Arduino.\r\n");
+                            }
+                            else    {
+                                uartWriteString(UART_USB, "Arduino finished its process. Updating Arduino FSM.\r\n");
+                                change_arduino_state();
+                            }
                         }
                         else {
                             uartWriteString(UART_USB, "ERROR: Arduino tried to update its state, but response was NOT OK.\r\n");
