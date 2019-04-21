@@ -74,6 +74,7 @@ void main_fsm_execute ()    {
                     }
                     else    {
                         uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
+                        print_help();
                     }
                 }
                 break;
@@ -162,6 +163,7 @@ void main_fsm_execute ()    {
 
                     default:
                         uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
+                        print_help();
                         main_fsm_state = IDLE;
                 }
                 break;

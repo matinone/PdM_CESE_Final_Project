@@ -14,15 +14,12 @@
 
 /* ===== Dependencies ===== */
 #include "sapi.h"
-#include "debounce.h"
 
 
 /* ===== Prototypes of public functions ===== */
 void clear_screen();
 void print_welcome_msg();
-void print_error_msg();
-void print_help_msg();
-void print_button_info(debounce_button_t button_array[], uint8_t n_button);
+void print_help();
 void print_adc_value(uint16_t adc_value);
 
 
