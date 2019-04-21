@@ -69,6 +69,9 @@ void main_fsm_execute ()    {
                             uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
                         }
                     } 
+                    else if (received_byte == 'A') {
+                        main_fsm_state = PROCESS_CMD;
+                    }
                     else    {
                         uartWriteString(UART_USB, "ERROR: Invalid command received.\r\n");
                     }
