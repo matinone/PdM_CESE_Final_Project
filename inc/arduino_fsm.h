@@ -8,36 +8,30 @@
 
 
 /* ===== Avoid multiple inclusion ===== */
-#ifndef __MAIN_FSM_H__
-#define __MAIN_FSM_H__
+#ifndef __ARDUINO_FSM_H__
+#define __ARDUINO_FSM_H__
 
 
 /* ===== Dependencies ===== */
 #include "sapi.h"
+#include "arduino_command.h"
 
 
 /* ===== Public structs and enums ===== */
 typedef enum {
-	INITIAL,
-	IDLE,
-	PROCESS_CMD,
-	WAIT_RSP
-}	main_fsm_state_t;
-
-typedef enum {
-	TOGGLE_LED 		= '1',
-	ECHO_ARDUINO 	= '2',
-	CONFIG_MODE_1 	= '3',
-	CONFIG_MODE_2 	= '4',
-	START_PROCESS 	= '5',
-	ARDUINO_DONE 	= 'A',
-}	pc_command_t;
+	ARDUINO_IDLE,
+	ARDUINO_MODE_1,
+	ARDUINO_MODE_2,
+	ARDUINO_WORKING
+}	arduino_fsm_state_t;
 
 
 /* ===== Prototypes of public functions ===== */
-void main_fsm_init();
-void main_fsm_execute();
+void arduino_fsm_init();
+void update_arduino_fsm(arduino_cmd_t * cmd);
+void change_arduino_state();
+arduino_fsm_state_t get_arduino_fsm_state();
 
 
 /* ===== Avoid multiple inclusion ===== */
-#endif // __MAIN_FSM_H__
+#endif // __ARDUINO_FSM_H__

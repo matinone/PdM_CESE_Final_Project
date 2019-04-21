@@ -10,13 +10,13 @@
 /* ===== Dependencies ===== */
 #include "main_fsm.h"
 #include "arduino_command.h"
+#include "arduino_fsm.h"
 #include "uart_print.h"
 
 
 /* ===== Macros of private constants ===== */
 #define PROCESS_DELAY 10
 #define BAUD_RATE 115200
-// #define ASCII_OFFSET 48
 
 
 /* ===== Declaration of private variables ===== */
@@ -26,6 +26,7 @@ static arduino_cmd_t current_cmd;
 
 
 /* ===== Prototypes of private functions ===== */
+void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte);
 
 
 /* ===== Implementations of public functions ===== */
@@ -74,9 +75,37 @@ void main_fsm_execute ()    {
                         //send_command_to_arduino(received_byte);
                         uartWriteString(UART_USB, "A_1\r\n");
 
-                        reset_arduino_cmd(&current_cmd);
-                        current_cmd.cmd = received_byte;
-                        start_arduino_timeout(&current_cmd);
+                        setup_arduino_command(&current_cmd, received_byte);
+
+                        main_fsm_state = WAIT_RSP;
+                        break;
+
+                    case CONFIG_MODE_1:
+                        uartWriteString(UART_USB, "Command 3 received - configure Arduino in Mode 1.\r\n");
+                        //send_command_to_arduino(received_byte);
+                        uartWriteString(UART_USB, "A_2\r\n");
+
+                        setup_arduino_command(&current_cmd, received_byte);
+
+                        main_fsm_state = WAIT_RSP;
+                        break;
+
+                    case CONFIG_MODE_2:
+                        uartWriteString(UART_USB, "Command 4 received - configure Arduino in Mode 2.\r\n");
+                        //send_command_to_arduino(received_byte);
+                        uartWriteString(UART_USB, "A_3\r\n");
+
+                        setup_arduino_command(&current_cmd, received_byte);;
+
+                        main_fsm_state = WAIT_RSP;
+                        break;
+
+                    case START_PROCESS:
+                        uartWriteString(UART_USB, "Command 5 received - start process in Arduino.\r\n");
+                        //send_command_to_arduino(received_byte);
+                        uartWriteString(UART_USB, "A_4\r\n");
+
+                        setup_arduino_command(&current_cmd, received_byte);
 
                         main_fsm_state = WAIT_RSP;
                         break;
@@ -88,12 +117,12 @@ void main_fsm_execute ()    {
 
                         if (rsp_status == RSP_OK) {
                             uartWriteString(UART_USB, "Arduino finished its process. Updating Arduino FSM.\r\n");
-                            // change_arduino_state();
+                            change_arduino_state();
                         }
                         else {
                             uartWriteString(UART_USB, "ERROR: Arduino tried to update its state, but response was NOT OK.\r\n");
                         }
-                        
+
                         main_fsm_state = IDLE;
                         break;
 
@@ -109,8 +138,8 @@ void main_fsm_execute ()    {
                     rsp_status = check_arduino_rsp(&current_cmd);
 
                     if (rsp_status == RSP_OK)   {
-                        // update_arduino_fsm(&current_cmd);
                         uartWriteString(UART_USB, "Arduino response OK.\r\n");
+                        update_arduino_fsm(&current_cmd);
                     }
                     else {
                         uartWriteString(UART_USB, "ERROR: Arduino response NOT OK, could not process command.\r\n");
@@ -133,4 +162,8 @@ void main_fsm_execute ()    {
 
 
 /* ===== Implementations of private functions ===== */
-
+void setup_arduino_command(arduino_cmd_t * cmd, uint8_t rx_byte)    {
+    reset_arduino_cmd(cmd);
+    cmd->cmd = rx_byte;
+    start_arduino_timeout(cmd);
+}

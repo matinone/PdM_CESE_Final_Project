@@ -7,7 +7,7 @@ void setup() {
 }
 
 void loop() {
-  // if we get a valid byte, read analog ins:
+  // check if there is data available
   if (Serial.available() > 0) {
     // get incoming byte:
     rx_byte = Serial.read();
@@ -17,9 +17,16 @@ void loop() {
         break;
       case '2':
         Serial.print("E_1");
+        break;
+      case '3':
+        Serial.print("E_1");
+        break;
+      case '4':
+        Serial.print("E_1");
+        break;
       default:
         if (rx_byte != '\n' && rx_byte != '\r') {
-          Serial.print("Got Unknown");
+          Serial.print("E_0");
         }
     } // switch
   } // if serial available
