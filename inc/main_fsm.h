@@ -17,6 +17,20 @@
 
 
 /* ===== Public structs and enums ===== */
+
+/*------------------------------------------------------------------
+|  Enum: main_fsm_state_t
+| ------------------------------------------------------------------
+|  Description: holds the states for the main program FSM.
+|
+|  Values:
+|		INITIAL		- initial state, unconditional transition to 
+|					  IDLE after reset
+|		IDLE		- waiting for commands from User or Arduino 
+|		PROCESS_CMD	- processing the received command, according to 
+|					  pc_command_t enum
+|		WAIT_RSP 	- waiting for a response from Arduino
+*-------------------------------------------------------------------*/
 typedef enum {
 	INITIAL,
 	IDLE,
@@ -24,6 +38,24 @@ typedef enum {
 	WAIT_RSP
 }	main_fsm_state_t;
 
+
+/*------------------------------------------------------------------
+|  Enum: pc_command_t
+| ------------------------------------------------------------------
+|  Description: holds the values of the valid commands that can be
+				received.
+|
+|  Values:
+|		TOGGLE_LED			- toggle LEDB in EDU-CIAA
+|		ECHO_ARDUINO		- send message to Arduino and wait for
+							  positive answer 
+|		CONFIG_MODE_1 		- configure Arduino in Mode 1
+|		CONFIG_MODE_2 		- configure Arduino in Mode 2
+|		START_PROCESS		- start process in Arduino
+|		GET_ARDUINO_STATE	- get Arduino FSM state
+|		READ_ADC			- read ADC value in EDU-CIAA 
+|		ARDUINO_DONE		- Arduino finish processing
+*-------------------------------------------------------------------*/
 typedef enum {
 	TOGGLE_LED 			= '0',
 	ECHO_ARDUINO 		= '1',
@@ -37,7 +69,37 @@ typedef enum {
 
 
 /* ===== Prototypes of public functions ===== */
+
+/*------------------------------------------------------------------
+|  Function: main_fsm_init
+| ------------------------------------------------------------------
+|  Description: sets the initial state of the main program FSM and
+|				performs the following actions:
+|				- Configure UART.
+|				- Reset current command.
+|				- Clear LEDB.
+|				- Enable ADC.
+|
+|  Parameters:
+|		-
+|
+|  Returns:  void
+*-------------------------------------------------------------------*/
 void main_fsm_init();
+
+
+/*------------------------------------------------------------------
+|  Function: main_fsm_execute
+| ------------------------------------------------------------------
+|  Description: controls the execution of the main program. It 
+|				handles the command transmission/reception and 
+|				performs the requested actions.
+|
+|  Parameters:
+|		- 
+|
+|  Returns:  void
+*-------------------------------------------------------------------*/
 void main_fsm_execute();
 
 

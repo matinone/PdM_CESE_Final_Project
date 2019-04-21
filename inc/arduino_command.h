@@ -36,7 +36,6 @@
 |					  Arduino
 |		rsp 		- response status received from the Arduino
 |		delay 		- delay used for the response timeout
-|
 *-------------------------------------------------------------------*/
 typedef struct {
 	uint8_t cmd;
