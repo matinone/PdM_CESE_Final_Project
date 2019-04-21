@@ -101,7 +101,7 @@ void main_fsm_execute ()    {
                     main_fsm_state = PROCESS_CMD;
                 }
                 received_byte_buffer = 0;
-                
+
                 break;
 
             case PROCESS_CMD:
@@ -229,6 +229,9 @@ void main_fsm_execute ()    {
                         }
                         else    {
                             uartWriteString(UART_USB, "ERROR: user command received and ignored (cannot be processed at this point).\r\n");
+                            // read incoming byte to flush the rx buffer
+                            uint8_t ignored_byte;
+                            uartReadByte(UART_USB, &ignored_byte);
                         }
                     }
                     else {
